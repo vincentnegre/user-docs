@@ -1,14 +1,17 @@
 About this document
 ===================
 
-This document describes the use of the iRODS client with the
-France Grilles iRODS infrastructure (FG-iRODS).
+This document describes the use of the `iRODS <https://irods.org>`_
+client with the `France Grilles iRODS service
+<http://www.france-grilles.fr/catalogue-de-services/fg-irods/>`_
+(FG-iRODS).
 
 The last version of this document is made available on:
 https://github.com/FranceGrilles/user-docs/tree/main/irods-en.
 
-This document is licensed under a `Creative Commons Attribution
-4.0 International license <https://creativecommons.org/licenses/by/4.0/>`_.
+
+| Copyright (c) 2021 CNRS and University of Strasbourg.
+| This document is licensed under a `Creative Commons Attribution 4.0 International license <https://creativecommons.org/licenses/by/4.0/>`_.
 
 
 FG-iRODS

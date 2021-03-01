@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'FG-iRODS User Guide'
-copyright = '2021, Jérôme Pansanel'
+copyright = '2021, CNRS and University of Strasbourg'
 author = 'Jérôme Pansanel'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -116,11 +116,11 @@ htmlhelp_basename = 'fg-irods-user-guidedoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
-
+latex_logo = '_static/fg_logo.png'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
-    # 'papersize': 'letterpaper',
+    'papersize': 'a4paper',
 
     # The font size ('10pt', '11pt' or '12pt').
     #
