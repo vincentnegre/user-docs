@@ -408,7 +408,7 @@ Recherche avancée
 -----------------
 
 Afin d'effectuer une recherche plus fine de fichiers ou de collections,
-il est possible d'interroger directement le calagoue iCAT avec la
+il est possible d'interroger directement le catalogue iCAT avec la
 commande **iquest** :
 
 .. code-block:: shell-session
