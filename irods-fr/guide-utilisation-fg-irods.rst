@@ -14,7 +14,7 @@ Biscarat, Pierre Gay et Jérôme Pansanel.
 La dernière version de ce document est disponible sur :
 https://github.com/FranceGrilles/user-docs/tree/main/irods-fr.
 
-| Copyright (c) 2021 CNRS et Université de Strasbourg.
+| Copyright (c) 2021 CNRS, Université de Bordeaux et Université de Strasbourg.
 | Ce document est distribué sous la licence `Creative Commons Attribution 4.0 International license <https://creativecommons.org/licenses/by/4.0/>`_.
 
 
@@ -190,18 +190,37 @@ répertoire utilisateur) :
 
 * */home/<username>* : votre répertoire personnel
 
+Il est possible de modifier le répertoire sur lequel le client
+iRODS se connecte en ajoutant la lignes suivante au fichier
+de configuration iRODS :
+
+.. code-block:: console
+
+   "irods_cwd": "<chemin_repertoire>",
+   "irods_home": "<chemin_repertoire>",
+
+Il faut remplacer *<chemin_repertoire>* par le chemin souhaité par
+défaut.
+
 
 Chargement des données
 ----------------------
 
-Dans cette section, des fichiers vont être chargés vers FG-iRODS. Tout d'abord,
-créez un fichier exemple, tel que  ``foo.txt``.
+Dans cette section, des fichiers vont être chargés vers FG-iRODS. Le
+fichier utilisé pour ces exemples est ``foo.bin``, et peut être
+remplacé par un autre fichier de votre choix. Si vous souhaitez travailler
+avec le fichier ``foo.bin``, vous pouvez le créer avec la commande
+suivante :
+
+.. code-block:: shell-session
+
+   $ dd if=/dev/urandom of=foo.bin count=65536
 
 Le fichier est copié vers l'infrastructure iRODS avec la commande :
 
 .. code-block:: shell-session
 
-   $ iput -K foo.txt
+   $ iput -K foo.bin
 
 L'option *-K* permet de vérifier le *checksum* et de le stocker dans la base
 de données. Il est recommandé de l'utiliser systématiquement. Le fichier
@@ -211,20 +230,20 @@ est maintenant disponible sur FG-iRODS :
 
    $ ils
    /FranceGrillesZone/home/<username>:
-     foo.txt
+     foo.bin
 
 Le fichier peut être supprimé avec la commande suivante :
 
 .. code-block:: shell-session
 
-   $ irm foo.txt
+   $ irm foo.bin
 
 
 Espace de nom et chemin physique
 --------------------------------
 
 iRODS fournit une abstraction de l'emplacement physique des fichiers.
-Par exemple, ``/FranceGrillesZone/home/<username>/foo.txt`` est le chemin
+Par exemple, ``/FranceGrillesZone/home/<username>/foo.bin`` est le chemin
 logique utilisé par iRODS. Pour savoir où sont réellement stockées
 les données, il faut utiliser l'option **-L** avec la commande **ils** :
 
@@ -232,14 +251,14 @@ les données, il faut utiliser l'option **-L** avec la commande **ils** :
 
    $ ils -L
    /FranceGrillesZone/home/<username>:
-     <username>         0 mcia;mcia-fgirods1          483 2020-11-20.09:30 & foo.txt
-       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/foo.txt
+     <username>         0 mcia;mcia-fgirods1     33554432 2020-11-20.09:30 & foo.bin
+       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/foo.bin
 
 
 Cette commmande nous indique que :
 
-  * le fichier ``foo.txt`` est enregistré par FG-iRODS comme :
-    ``/FranceGrillesZone/home/<username>/foo.txt`` ;
+  * le fichier ``foo.bin`` est enregistré par FG-iRODS comme :
+    ``/FranceGrillesZone/home/<username>/foo.bin`` ;
 
   * son propriétaire est *<username>* ;
 
@@ -247,7 +266,7 @@ Cette commmande nous indique que :
 
   * il n'y a qu'un seul réplica, dont l'identifiant est *0* ;
 
-  * sa taille est de 483 octets ;
+  * sa taille est de 33554432 octets ;
 
   * son *checksum* a été enregistré (*sha:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=*).
 
@@ -259,9 +278,9 @@ Le fichier stocké dans FG-iRODS peut être téléchargé avec :
 
 .. code-block:: shell-session
 
-   $ iget -K foo.txt foo-restore.txt
+   $ iget -K foo.bin foo-restore.txt
 
-Le fichier ``foo.txt`` a été téléchargé et nommé ``foo-restore.txt``.
+Le fichier ``foo.bin`` a été téléchargé et nommé ``foo-restore.txt``.
 Avec l'option **-K** option, le *checksum* du fichier local est comparé
 avec le *checksum* du fichier sur FG-iRODS.
 
@@ -282,16 +301,16 @@ Pour créer une collection iRODS :
 
    $ imkdir mycollection
 
-Le fichier ``foo.txt`` peut être déplacé dans la collection
+Le fichier ``foo.bin`` peut être déplacé dans la collection
 *mycollection* avec :
 
 .. code-block:: shell-session
 
-   $ imv foo.txt mycollection
+   $ imv foo.bin mycollection
    $ ils -L mycollection
    /FranceGrillesZone/home/<username>/mycollection:
-     <username>         0 mcia;mcia-fgirods1          483 2020-11-20.10:18 & foo.txt
-       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/mycollection/foo.txt
+     <username>         0 mcia;mcia-fgirods1     33554432 2020-11-20.10:18 & foo.bin
+       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/mycollection/foo.bin
 
 Vous pouver voir que le chemin logique de la collection
 ``/FranceGrillesZone/home/<username>/mycollection`` a un
@@ -307,8 +326,7 @@ Les données peuvent être chargées directement dans une collection :
    $ ils  /FranceGrillesZone/home/<username>/mycollection
    /FranceGrillesZone/home/<username>/mycollection:
      bar.txt
-     foo.txt
-
+     foo.bin
 
 L'option **-r** permet un chargement récursif.
 
@@ -316,7 +334,9 @@ L'option **-r** permet un chargement récursif.
 Naviguer à travers les collections
 ++++++++++++++++++++++++++++++++++
 
-Pour afficher votre répertoire courant sur iRODS, utilisez :
+Le répertoire courant de travail correspond à l'emplacement sur lequel
+vous vous trouvez dans l'arborescence iRODS. Pour afficher votre répertoire
+courant sur iRODS, utilisez :
 
 .. code-block:: shell-session
 
@@ -325,8 +345,9 @@ Pour afficher votre répertoire courant sur iRODS, utilisez :
 
 Si vous ne spécifiez pas le chemin complet, mais uniquemenet un chemin
 relatif tel que ``mycollection/<file>``, iRDS utilise automatiquement
-le répertoire courant de travail comme préfixe. Le répertoire courant
-de travail peut être modifié avec :
+le répertoire courant de travail comme préfixe. Vous pouvez vous déplacer
+dans l'arborescence et modifier ce répertoire courant de travail avec la
+commande **icd** :
 
 .. code-block:: shell-session
 
@@ -349,14 +370,14 @@ recherchés. Les métadonnées sont ajoutées avec la commande :
 
 .. code-block:: shell-session
 
-   $ imeta add -d foo.txt 'length' '20' 'words'
+   $ imeta add -d foo.bin 'length' '20' 'words'
 
 
 Le champs *Unit* peut être vide :
 
 .. code-block:: shell-session
 
-   $ imeta add -d foo.txt 'project' 'example'
+   $ imeta add -d foo.bin 'project' 'example'
 
 Les métadonnnées peuvent également être ajoutées à une collection :
 
@@ -373,8 +394,8 @@ faut entrer :
 
 .. code-block:: shell-session
 
-   $ imeta ls -d foo.txt
-   AVUs defined for dataObj /FranceGrillesZone/home/<username>/mycollection/foo.txt:
+   $ imeta ls -d foo.bin
+   AVUs defined for dataObj /FranceGrillesZone/home/<username>/mycollection/foo.bin:
    attribute: length
    value: 20
    units: words
@@ -400,7 +421,7 @@ est effectuée avec la commande suivante :
 
    $ imeta qu -d 'length' = '20'
    collection: /FranceGrillesZone/home/<username>/mycollection
-   dataObj: foo.txt
+   dataObj: foo.bin
 
 
 
@@ -457,7 +478,7 @@ d'accès à la collection actuelle :
            Inheritance - Disabled
      bar.txt
            ACL - <username>#FranceGrillesZone:own
-     foo.txt
+     foo.bin
            ACL - <username>#FranceGrillesZone:own
 
 
@@ -475,7 +496,7 @@ La modification des droits d'accès pour autoriser un collègue à accéder
 
 .. code-block:: shell-session
 
-   $ ichmod read <colleague> foo.txt
+   $ ichmod read <colleague> foo.bin
 
 L'utilisateur *<colleague>* peut maintenant accéder en lecture au
-fichier ``foo.txt``.
+fichier ``foo.bin``.

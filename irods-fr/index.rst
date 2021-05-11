@@ -1,5 +1,5 @@
 ..
-      Copyright 2021 CNRS and University of Strasbourg
+      Copyright 2021 CNRS, University of Bordeaux and University of Strasbourg
 
       This work is licensed under the Creative Commons Attribution 4.0
       International License. To view a copy of this license, visit
