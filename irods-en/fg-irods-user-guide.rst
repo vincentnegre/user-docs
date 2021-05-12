@@ -1,54 +1,73 @@
+Introduction
+============
+
 About this document
-===================
+-------------------
 
 This document describes the use of the `iRODS <https://irods.org>`_
-client with the `France Grilles iRODS service
+client with the `iRODS-based service
 <http://www.france-grilles.fr/catalogue-de-services/fg-irods/>`_
-(FG-iRODS).
+(FG-iRODS) provided by France Grilles. It is based on the online
+documentation written by Catherine Biscarat, Pierre Gay and Jérôme
+Pansanel.
 
 The last version of this document is made available on:
 https://github.com/FranceGrilles/user-docs/tree/main/irods-en.
 
 
-| Copyright (c) 2021 CNRS and University of Strasbourg.
+| Copyright (c) 2021 CNRS, University of Bordeaux and University of Strasbourg.
 | This document is licensed under a `Creative Commons Attribution 4.0 International license <https://creativecommons.org/licenses/by/4.0/>`_.
 
 
-FG-iRODS
-========
+The FG-iRODS service
+--------------------
 
-The FG-iRODS service is proposed by the French `France-Grilles <http://france-grilles.fr>`_
-Research Infrastructure. Access to the service is nominative and is
-available on request to info@france-grilles.fr. Once access to the service
-has been validated by the France-Grilles team, you will be able to access
-the service with your certificate or with your password.
+The FG-iRODS service, provided by the `France Grilles <http://france-grilles.fr>`_
+French Research Infrastructure, aims to provide a convenient way to manage
+research data. It is composed of the following elements:
 
-To access the service, you will be asked to:
+* a highly available storage infrastructure which permit to distribute the
+  data geographically ;
 
-* Sign the conditions of access to the service: http://www.france-grilles.fr/IMG/pdf/iRODS_Service_Policy.pdf;
+* the iRODS software ;
 
-* Provide a data management plan (the template is free, France Grilles needs
-  only the information concerning it as a service provider).
+* a dedicated user support ;
 
-At the end of the registration procedure, you will be provided with a contact
-for your support.
+* a set of tools to make the solution simple to use
+
+The access to the service is nominative and realised through a simple
+application sent to `info@france-frilles.fr <mailto:info@france-grilles.fr>`_.
+Once the application is processed, and before the account creation, the
+following additionnal information are requested:
+
+* to sign the policies of the service: http://www.france-grilles.fr/IMG/pdf/iRODS_Service_Policy.pdf;
+
+* to provide a light data management plan (DMP). Several examples of DMP
+  are made available by DMP OPIDoR `<https://dmp.opidor.fr/>`_.
+
+At the end of the registration procedure, the access to the service is open
+to the requester and the documentation of the service is sent to the users.
 
 
-Getting Started
-===============
+Client Installation
+===================
 
 Prerequisite
 ------------
 
-The user needs an access to a computer with a GNU/Linux system. The
-installation of the iRODS client is detailed in the next section.
+The user needs an access to a computer with a GNU/Linux operating system,
+like CentOS 7 or Ubuntu (16.04, 18.04). He needs also to have the right
+to install new softwares on this system.
+
 
 Environment
 -----------
 
-First, create the *~/irods/irods_environment.json* file with the following content:
+The iRODS CLI client use a file for storing most of the configuration
+details. This file is ``~/irods/irods_environment.json`` and need to
+be created with the following content:
 
-::
+.. code-block:: console
 
    {
        "irods_host": "ccirodsfg.in2p3.fr",
@@ -73,19 +92,19 @@ The *<username>* and *<default_resource>* should be replaced by the values
 given to you during the registration procedure.
 
 
-Client Installation
--------------------
+Package Installation
+--------------------
 
 The client packages are made available for CentOS 7, Ubuntu 16.04 and Ubuntu 18.04.
 
 Instructions for configuring your package manager to include the iRODS *APT* or
-*YUM*-based repository may be found at https://packages.irods.org.
+*YUM*-based repository can be found at https://packages.irods.org.
 
 Once the repository has been configured, install the *irods-icommands* package.
 
 Check that your client installation is working with:
 
-::
+.. code-block:: shell-session
 
    ~$ iinit
 
@@ -96,7 +115,7 @@ finished working with FG-iRODS, you can close the session with
 
 The **ienv** command display your iRODS environment:
 
-::
+.. code-block:: console
 
    irods_version - 4.2.8
    irods_client_server_negotiation - request_server_negotiation
@@ -122,12 +141,15 @@ The **ienv** command display your iRODS environment:
 Using the FG-iRODS service
 ==========================
 
+Interactive Help
+----------------
+
 **ihelp** permits to display the list of iRODS commands, as well as the
 help on a specific command:
 
-::
+.. code-block:: shell-session
 
-   ~$ ihelp ils
+   $ ihelp ils
    Usage: ils [-ArlLv] dataObj|collection ...
    Usage: ils --bundle [-r] dataObj|collection ...
    Display data Objects and collections stored in irods.
@@ -145,16 +167,18 @@ help on a specific command:
 
    iRODS Version 4.2.8                ils
 
-A full description of the icommands is available in the `iRODS documentation <https://docs.irods.org/4.2.8/icommands/user/>`_.
+A full description of the icommands is available in the
+`iRODS documentation <https://docs.irods.org/4.2.8/icommands/user/>`_.
 
 
 The Working Directory
 ---------------------
 
-The **ils** command permits you to display the data in your iRODS-home
-directory.
+The **ils** command permits you to display the content of the current
+working directory. By default, the working directory is your user
+directory :
 
-::
+.. code-block:: shell-session
 
    ~$ ils
    /FranceGrillesZone/home/<username>:
@@ -163,72 +187,98 @@ directory.
 
 * */home/<username>*: your default working directory
 
+It is possible to modify the default directory used when you connect
+by adding the following lines to your iRODS configuration file :
+
+.. code-block:: console
+
+   "irods_cwd": "<repository_path>",
+   "irods_home": "<repository_path>",
+
+The value of *<repository_path>* needs to be replaced by the desired path.
+
+
 Uploading Data
 --------------
 
-In this section, some files will be uploaded to iRODS. First, create an
-example file, like ``foo.txt``.
+In this section, some files will be uploaded to FG-iRODS. The file used
+in the following examples is ``foo.bin``. It can be replaced by a file
+of your choice. If you want to work with the ``foo.bin`` file, you can
+create it with the following command:
 
-The file is uploaded to the iRODS server:
+.. code-block:: shell-session
 
-::
+   $ dd if=/dev/urandom of=foo.bin count=65536
 
-   iput -K foo.txt
+The file is uploaded to the iRODS infrastructure with:
 
-The *-K* option permits to verify the checksum. The file is now
-available on the iRODS server:
+.. code-block:: shell-session
 
-::
+   $ iput -K foo.bin
 
-   ~$ ils
+The *-K* option permits to verify the checksum and to store it in the
+iRODS database. It is recommanded to always use this option. The file is
+now available on FG-iRODS:
+
+.. code-block:: shell-session
+
+   $ ils
    /FranceGrillesZone/home/<username>:
-     foo.txt
+     foo.bin
 
 **Note:** the commands to steer iRODS are very similar to bash commands
 and can easily be confused!
 
 The file can be deleted with this command:
 
-::
+.. code-block:: shell-session
 
-   irm foo.txt
+   $ irm foo.bin
 
 
 Logical and Physical Namespace
 ------------------------------
 
 iRODS provides an abstraction from the physical location of the files,
-e.g. ``/FranceGrillesZone/home/<username>/foo.txt`` is the logical path
+e.g. ``/FranceGrillesZone/home/<username>/foo.bin`` is the logical path
 which only iRODS knows. To get more details about the physical namespace,
-use:
+use the **-L** option with the **ils** command:
 
-::
+.. code-block:: shell-session
 
-   ~$ ils -L
+   $ ils -L
    /FranceGrillesZone/home/<username>:
-     <username>         0 mcia;mcia-fgirods1          483 2020-11-20.09:30 & foo.txt
-       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/foo.txt
+     <username>         0 mcia;mcia-fgirods1     33554432 2020-11-20.09:30 & foo.bin
+       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/foo.bin
 
+The result of this command indicate us that:
 
-The file ``foo.txt``  that bas been uploaded is known in iRODS as ``/FranceGrillesZone/home/<username>/foo.txt``.
-It is owned by the user *<username>* and lies on the storage resource
-*mcia*. There is no other replica of that file in the iRODS system (0
-in front of *mcia*). The size of the file is 483B. It is stored with a
-time stamp and a checksum. Actually, the checksum calculation was
-triggered by the option '-K' of the **iput** command.
+  * file ``foo.bin``  is registered by FG-iRODS as
+    ``/FranceGrillesZone/home/<username>/foo.bin``;
+
+  * its owner is *<username>*;
+
+  * it lies on the storage resource *mcia*;
+
+  * there is only a single replica, with the id *0*;
+
+  * the file has a size of 33554432 bytes;
+
+  * its checksum has been registered
+    (*sha:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=*);
 
 
 Downloading Data
 ----------------
 
-The file stored in iRODS can be downloaded with:
+The file stored in FG-iRODS can be downloaded with:
 
-::
+.. code-block:: shell-session
 
-   ~$ iget -K foo.txt foo-restore.txt
+   $ iget -K foo.bin foo-restore.txt
 
 
-The ``foo.txt`` file has been downloaded and renamed to ``foo-restore.txt``.
+The ``foo.bin`` file has been downloaded and renamed to ``foo-restore.txt``.
 With the *-K* option, the checksum of the local file is compared with
 the checksum of the file on the iRODS server.
 
@@ -244,34 +294,35 @@ organising them the same way. However, folders are called *collections*.
 
 To create an iRODS collection:
 
-::
+.. code-block:: shell-session
 
-   ~$ imkdir mycollection
+   $ imkdir mycollection
 
-The ``foo.txt`` file can be moved to that collection with:
+The ``foo.bin`` file can be moved to that collection with:
 
-::
+.. code-block:: shell-session
 
-   ~$ imv foo.txt mycollection
-   ~$ ils -L mycollection
+   $ imv foo.bin mycollection
+   $ ils -L mycollection
    /FranceGrillesZone/home/<username>/mycollection:
-     <username>         0 mcia;mcia-fgirods1          483 2020-11-20.10:18 & foo.txt
-       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/mycollection/foo.txt
+     <username>         0 mcia;mcia-fgirods1     33554432 2020-11-20.10:18 & foo.bin
+       sha2:veVzp+ApMzyVRzZN0BZIkDyFuqUp/4tM4sLVACp00B8=    generic    /vault1/resc/home/<username>/mycollection/foo.bin
 
-You see that the logical iRODS collection ``/FranceGrillesZone/home/<username>/mycollection``
-has the physical counterpart ``/vault1/resc/home/<username>/mycollection``.
+You see that the logical iRODS collection
+``/FranceGrillesZone/home/<username>/mycollection`` has the physical
+counterpart ``/vault1/resc/home/<username>/mycollection``.
 So data does not end up on the iRODS server randomly but follows the
 structure.
 
 Data can also be put directly into an iRODS collection:
 
-::
+.. code-block:: shell-session
 
-   ~$ iput -K -r bar.txt mycollection
-   ~$ ils  /FranceGrillesZone/home/<username>/mycollection
+   $ iput -K -r bar.txt mycollection
+   $ ils  /FranceGrillesZone/home/<username>/mycollection
    /FranceGrillesZone/home/<username>/mycollection:
      bar.txt
-     foo.txt
+     foo.bin
 
 
 The *-r* flag can be used for recursive upload.
@@ -280,20 +331,23 @@ The *-r* flag can be used for recursive upload.
 Navigating through Collections
 ++++++++++++++++++++++++++++++
 
-To get your current iRODS working directory, use:
+The current working directory corresponds to the place where you are
+working in the folder hierarchy of iRODS. To display your current
+iRODS working directory, use:
 
-::
+.. code-block:: shell-session
 
-   ~$ ipwd
+   $ ipwd
    /FranceGrillesZone/home/<username>
 
-If you do not specify a full path, but only a partial path like ``mycollection/<file>``,
-iRDS automatically uses the current working directory as a prefix. This
-directory can be modified with:
+If you do not specify a full path, but only a partial path like
+``mycollection/<file>``, iRODS automatically uses the current working
+directory as a prefix. You can move along the folder hierarchy and
+modify your current working directory with the **icd** command:
 
-::
+.. code-block:: shell-session
 
-   ~$ icd mycollection
+   $ icd mycollection
 
 
 Managing Metadata
@@ -308,22 +362,22 @@ Each file can be annoted with *Attribute*, *Value*, *Unit* triples (AVU).
 These triples are added to the iRODS database (iCAT) and are searchable.
 Metadata can be added to a file with:
 
-::
+.. code-block:: shell-session
 
-   ~$ imeta add -d foo.txt 'length' '20' 'words'
+   $ imeta add -d foo.bin 'length' '20' 'words'
 
 
-The Unit field can be empty:
+The *Unit* field can be empty:
 
-::
+.. code-block:: shell-session
 
-   ~$ imeta add -d foo.txt 'project' 'example'
+   $ imeta add -d foo.bin 'project' 'example'
 
 Metadata can also be added to a collection:
 
-::
+.. code-block:: shell-session
 
-   ~$ imeta add -C mycollection 'author' 'John Smith'
+   $ imeta add -C mycollection 'author' 'John Smith'
 
 
 Listing Metadata
@@ -331,17 +385,17 @@ Listing Metadata
 
 To list metadata on data objects (files), do:
 
-::
+.. code-block:: shell-session
 
-   ~$ imeta ls -d foo.txt
-   AVUs defined for dataObj /FranceGrillesZone/home/<username>/mycollection/foo.txt:
+   $ imeta ls -d foo.bin
+   AVUs defined for dataObj /FranceGrillesZone/home/<username>/mycollection/foo.bin:
    attribute: length
    value: 20
    units: words
 
 and the following on collections:
 
-::
+.. code-block:: shell-session
 
    ~$ imeta ls -C mycollection
    AVUs defined for collection /FranceGrillesZone/home/<username>/mycollection:
@@ -350,40 +404,52 @@ and the following on collections:
    units:
 
 
-
 Querying Metadata
 +++++++++++++++++
 
-To query the iCAT metadata catalogue, the **iquest** is used:
+To query the iCAT metadata catalogue, use the following command:
 
-::
+.. code-block:: shell-session
 
-   ~$ iquest "select COLL_NAME, META_COLL_ATTR_VALUE where META_COLL_ATTR_NAME like 'author'"
+   $ imeta qu -d 'length' = '20'
+   collection: /FranceGrillesZone/home/<username>/mycollection
+   dataObj: foo.bin
+
+Advanced search
++++++++++++++++
+
+In order to perform a more accurate selection of files or collections,
+it is possible to directly interact with the iCAT catalogue with the
+**iquest** command:
+
+.. code-block:: shell-session
+
+   $ iquest "select COLL_NAME, META_COLL_ATTR_VALUE where META_COLL_ATTR_NAME like 'author'"
    COLL_NAME = /FranceGrillesZone/home/<username>/mycollection
    META_COLL_ATTR_VALUE = John Smith
    ------------------------------------------------------------
 
-If you are looking for a data object rather than a collection, replace
-the *META_COLL_ATTR_NAME* attribute with *META_DATA_ATTR_NAME*. There
-are a lot of predefined attributes that can be used in your searches:
+The results can be filtered with one or more attributes:
 
-::
+.. code-block:: shell-session
 
-   ~$ iquest attrs
-
-
-The output can be filtered for a specific attribute value:
-
-::
-
-   ~$ iquest "select COLL_NAME, META_COLL_ATTR_VALUE where META_COLL_ATTR_NAME like 'author' \
+   $ iquest "select COLL_NAME, META_COLL_ATTR_VALUE where META_COLL_ATTR_NAME like 'author' \
    and META_COLL_ATTR_VALUE like 'John%'"
    COLL_NAME = /FranceGrillesZone/home/<username>/mycollection
    META_COLL_ATTR_VALUE = John Smith
    ------------------------------------------------------------
 
+**NOTE**: the '%' symbol is a wildcard.
 
-**NOTE**: the '%' is a wildcard.
+If you are looking for a data object rather than a collection, replace
+the *META_COLL_ATTR_NAME* attribute with *META_DATA_ATTR_NAME*. There
+are a lot of predefined attributes that can be used in your searches.
+To display the list of these attributes, use:
+
+.. code-block:: shell-session
+
+   $ iquest attrs
+
 
 Access Control
 --------------
@@ -392,30 +458,32 @@ iRODS has similar Access Control Lists (ACL) as a unix file system,
 with read, write and own rights. The current access rights of your data
 can be checked with:
 
-::
+  .. code-block:: shell-session
 
-   ~$ ils -r -A
+   $ ils -r -A
    /FranceGrillesZone/home/<username>/mycollection:
            ACL - jpansanel#FranceGrillesZone:own
            Inheritance - Disabled
      bar.txt
            ACL - <username>#FranceGrillesZone:own
-     foo.txt
+     foo.bin
            ACL - <username>#FranceGrillesZone:own
 
 
-After the *ACL* keyword, the rights are specified. In this case,
-*<username>* owns all files listed. None else has access rights.
+The access rights are specified after the *ACL* keyword. In this example,
+*<username>* owns all files listed. No one else can access the files.
 
-Collections have a *Inheritance* flag. If this flag is set to true,
-all content of the folder will inherit the accession rights from the
-folder. The inheritance applies only to newly uploaded files.
+Collections have a *Inheritance* attribut. If this value of this attribut
+is set to *Enabled*, all content of the collection will inherit the access
+rights from the collection. The inheritance applies only to newly uploaded files.
 
-To add accession rights to a colleague:
+To give read access to a file to a colleague, use the following command:
 
-::
+.. code-block:: shell-session
 
-   ~$ ichmod read <colleague> foo.txt
 
-The user `<colleague>` can now access  the ``foo.txt`` file.
+   $ ichmod read <colleague> foo.bin
+
+The user *<colleague>* can now access the ``foo.bin`` file, but it will not
+be able to modify or delete it.
 
