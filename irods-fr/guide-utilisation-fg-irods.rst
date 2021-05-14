@@ -7,9 +7,9 @@ Introduction
 Ce document présente l'utilisation du client `iRODS <https://irods.org>`_
 avec le `service iRODS
 <http://www.france-grilles.fr/catalogue-de-services/fg-irods/>`_
-(FG-iRODS) proposé par France Grilles. Il est basé sur sur le contenu
+(FG-iRODS) proposé par France Grilles. Il est basé sur le contenu
 de la documentation en ligne du service FG-iRODS rédigée par Catherine
-Biscarat, Pierre Gay et Jérôme Pansanel.
+Biscarat, Pierre Gay et Jérôme Pansanel et complété par de la documentation rédigé par Patrick Moreau et Vincent Nègre pour le projet PHENOME. 
 
 La dernière version de ce document est disponible sur :
 https://github.com/FranceGrilles/user-docs/tree/main/irods-fr.
@@ -49,8 +49,10 @@ identifiants et la documentation du service transmis aux
 utilisateurs.
 
 
-Installation du client
+Installation du client en ligne de commandes (iCommands)
 ======================
+
+C'est le client à privilégier car il offre le plus de de fonctionnalités. C'est le plus stable et le plus rapide. 
 
 Prérequis
 ---------
@@ -58,6 +60,8 @@ Prérequis
 L'installation du client iRODS nécessite de disposer d'un poste client
 fonctionnant avec le système CentOS 7 ou Ubuntu (16.04, 18.04), sur
 lequel il est possible d'installer de nouveaux logiciels.
+
+Les utilisateurs sous Windows 10 peuvent installer WSL (Windows Subsystem for Linux) qui permet d’exécuter un environnement Linux directement sur Windows 10 (https://docs.microsoft.com/fr-fr/windows/wsl/install-win10).
 
 
 Environnement
@@ -111,7 +115,7 @@ La vérification de l'installation du client est réalisée avec :
 
    $ iinit
 
-La commande **iinit** permets d'ouvrir une session vers l'instance iRODS.
+La commande **iinit** permet d'ouvrir une session vers l'instance iRODS.
 Elle vous demande le mot de passe pour vous connecter. Une fois que vous
 avez terminé votre transfert de données, vous pouvez terminer la session
 avec la commande **iexit**.
@@ -191,7 +195,7 @@ répertoire utilisateur) :
 * */home/<username>* : votre répertoire personnel
 
 Il est possible de modifier le répertoire sur lequel le client
-iRODS se connecte en ajoutant la lignes suivante au fichier
+iRODS se connecte en ajoutant les lignes suivantes au fichier
 de configuration iRODS :
 
 .. code-block:: console
@@ -288,6 +292,17 @@ avec le *checksum* du fichier sur FG-iRODS.
 Structuration des données
 -------------------------
 
+Bonnes pratiques
+++++++++++++++++
+
+- Afn de conserver une compatibilité maximale entre les environnements Windows et Linux, il est fortement déconseillé d’utiliser des caractères accentués ainsi que des espaces pour nommer des fichiers ou des collections.
+
+- La longueur des chemins d’accès aux fichiers ne doit pas excéder 256 caractères incluant le nom du fichier lui-même.
+
+- Il est préférable de transférer des fichiers volumineux en nombre restreint par rapport au transfert d’une multitude de ‘petits’ fichiers. Il convient de créer une archive en local (.tar) avant de procéder au transfert : la durée de copie en sera grandement diminuée (mécanisme de threads) et le catalogue iRODs sera moins sollicité.
+
+- Il existe différents clients compatibles avec iRODS (https://irods.org/clients/) mais le client en ligne de commande (iCommands) est à privilégier.
+
 Création d'une collection
 +++++++++++++++++++++++++
 
@@ -328,7 +343,7 @@ Les données peuvent être chargées directement dans une collection :
      bar.txt
      foo.bin
 
-L'option **-r** permet un chargement récursif.
+L'option **-r** permet un chargement récursif. Elle est utile si vous souhaitez transférer le contenu d'un dossier.
 
 
 Naviguer à travers les collections
@@ -491,6 +506,13 @@ attribut est égale à *Enabled*, l'ensemble du contenu de la collection
 hérite des droits d'accès de la collection. Cet héritage ne s'applique
 qu'aux nouveaux fichiers copiés dans la collection.
 
+Les commandes permettant d'activer ou de désactiver l'héritage sont les suivantes:
+
+.. code-block:: shell-session
+
+   ichmod inherit mycollection
+   ichmod noinherit mycollection 
+
 La modification des droits d'accès pour autoriser un collègue à accéder
 à ses données se fait avec :
 
@@ -500,3 +522,53 @@ La modification des droits d'accès pour autoriser un collègue à accéder
 
 L'utilisateur *<colleague>* peut maintenant accéder en lecture au
 fichier ``foo.bin``.
+
+Pour une gestion avancée des droits d'accés la commande *igroupadmin* permet de créer des utilisateurs, gérer des groupes, ... Elle est disponible pour les utilisateurs de type groupeadmin.
+
+Installation du client Brocoli
+==============================
+
+Ce client a été développé par Pierre Gay pour le mesocentre de Calcul Intensif Aquitain. Il offre une interface graphique permettant de se connecter à iRODS. 
+Son installation est détaillée ici : https://github.com/mesocentre-mcia/brocoli. 
+Bien qu'expérimentale l'installation sous Windows fonctionne. Elle nécessite l'installation de miniconda afin de disposer de l'environnement pip.
+
+Installation du client FUSE
+==============================
+
+Il permet de monter son home irods comme un système de fichier local. Le client fuse est livré avec le package des icommandes. 
+
+Une fois le package installé, on trouve la commande irodsFs avec les autres icommandes sous /usr. Pour l'utiliser les commandes sont les suivantes:
+
+- On se logue sur la zone irods :
+
+.. code-block:: shell-session
+   iinit
+
+- On crée un point de montage sur son ordinateur:
+
+.. code-block:: shell-session
+   sudo mkdir -p /tmp/fmount
+
+- On monte son home irods:
+
+.. code-block:: shell-session
+   irodsFs /tmp/fmount
+   
+- On peut maintenant accéder aux fichiers en lecture:
+
+.. code-block:: shell-session
+   ls -l /tmp/fmount/
+   total 12300504
+   -rw-rw---- 1 pmoreau pmoreau 10737418240 févr. 15 09:51 test_data_10G
+
+- On peut aussi écrire (si les droits l'autorisent):
+
+.. code-block:: shell-session
+   cp  foo.bin /tmp/fmount
+   
+- Aprés utilisation il faut démonter le système de fichiers :
+
+.. code-block:: shell-session
+   umount -u /tmp/fmount
+
+Attention cependant les performances sont en-dessous des icommandes.
